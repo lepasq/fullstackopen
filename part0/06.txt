@@ -1,0 +1,12 @@
+browser->server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+
+note over server:
+server creates note
+end note
+
+server-->browser: 201 Created
+
+
+note over browser:
+browser added note to content
+end note
