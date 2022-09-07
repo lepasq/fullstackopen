@@ -20,16 +20,31 @@ const App = () => {
     numberService.getPersons().then((data) => setPersons(data));
   }, []);
 
+  const updateState = (p) => {
+    setPersons(p);
+    setNewName("");
+    setNewNumber("");
+  };
+
   const addNumber = (event) => {
     event.preventDefault();
-    if (persons.filter((x) => x.name === newName).length > 0) {
-      alert(`${newName} is already added to phonebook`);
+    const duplicate = persons.filter((x) => x.name === newName);
+    if (duplicate.length > 0) {
+      if (
+        window.confirm(
+          `${duplicate[0].name} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        numberService.updateNumber(duplicate[0], newNumber).then((data) => {
+          const newPersons = [...persons];
+          newPersons[persons.findIndex((x) => x === newName)] = data;
+          updateState(newPersons);
+        });
+      }
     } else {
       const person = { name: newName, number: newNumber };
       numberService.addNumber(person).then((data) => {
-        setPersons(persons.concat(data));
-        setNewName("");
-        setNewNumber("");
+        updateState(persons.concat(data));
       });
     }
   };
@@ -64,7 +79,11 @@ const App = () => {
         newNumber={newNumber}
         handleNumberChange={handleNumberChange}
       />
-      <Numbers persons={persons} nameFilter={nameFilter} setPersons={setPersons} />
+      <Numbers
+        persons={persons}
+        nameFilter={nameFilter}
+        setPersons={setPersons}
+      />
     </div>
   );
 };

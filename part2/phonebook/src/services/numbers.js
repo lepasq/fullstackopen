@@ -10,8 +10,14 @@ const addNumber = (person) =>
 const deleteNumber = (id) =>
   axios.delete(`${url}/${id}`).then((response) => response.data);
 
+const updateNumber = (person, newPhone) => {
+  person.number = newPhone;
+  return axios.put(`${url}/${person.id}`, person).then((response) => response.data);
+};
+
 export default {
   deleteNumber,
   getPersons,
   addNumber,
+  updateNumber,
 };
