@@ -3,6 +3,7 @@ import Numbers from "./components/Numbers";
 import Filter from "./components/Filter";
 import Form from "./components/Form";
 import numberService from "./services/numbers";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -15,6 +16,16 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [nameFilter, setNameFilter] = useState("");
+  const [notification, setNotification] = useState(undefined);
+  const [success, setSuccess] = useState(true);
+
+  const notify = (msg, success) => {
+    setNotification(msg);
+    setSuccess(success);
+    setTimeout(() => {
+      setNotification(undefined);
+    }, 5000);
+  };
 
   useEffect(() => {
     numberService.getPersons().then((data) => setPersons(data));
@@ -22,6 +33,10 @@ const App = () => {
 
   const updateState = (p) => {
     setPersons(p);
+    clearInput();
+  };
+
+  const clearInput = () => {
     setNewName("");
     setNewNumber("");
   };
@@ -35,15 +50,24 @@ const App = () => {
           `${duplicate[0].name} is already added to phonebook, replace the old number with a new one?`
         )
       ) {
-        numberService.updateNumber(duplicate[0], newNumber).then((data) => {
-          const newPersons = [...persons];
-          newPersons[persons.findIndex((x) => x === newName)] = data;
-          updateState(newPersons);
-        });
+        numberService
+          .updateNumber(duplicate[0], newNumber)
+          .then((data) => {
+            const newPersons = [...persons];
+            newPersons[persons.findIndex((x) => x === newName)] = data;
+            notify(`Updated number of ${newName}`, true);
+            updateState(newPersons);
+          })
+          .catch((err) => {
+            notify(`Could not update phone number of ${newName}`, false);
+            clearInput();
+          });
       }
     } else {
       const person = { name: newName, number: newNumber };
       numberService.addNumber(person).then((data) => {
+        notify(`Added ${newName}`, true);
+
         updateState(persons.concat(data));
       });
     }
@@ -64,6 +88,9 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      {notification && (
+        <Notification message={notification} success={success} />
+      )}
 
       <Filter
         nameFilter={nameFilter}
@@ -83,6 +110,8 @@ const App = () => {
         persons={persons}
         nameFilter={nameFilter}
         setPersons={setPersons}
+        setNotification={setNotification}
+        setSuccess={setSuccess}
       />
     </div>
   );
