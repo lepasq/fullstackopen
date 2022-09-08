@@ -1,7 +1,14 @@
 const express = require('express')
 const app = express()
+const morgan = require('morgan')
 
 app.use(express.json())
+
+morgan.token('content', (request) => {
+  return request.method === 'POST' ? JSON.stringify(request.body) : '';
+})
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :content'))
 
 let phonebook = [
     { 
@@ -69,7 +76,6 @@ const generateId = () => {
 
 app.post('/api/persons', (request, response) => {
   const body = request.body
-  console.log(request.body);
 
   if (!body.name) {
     return response.status(400).json({ 
@@ -98,13 +104,6 @@ app.post('/api/persons', (request, response) => {
   phonebook = phonebook.concat(person)
   response.json(person)
 })
-
-
-
-
-
-
-
 
 
 const PORT = 3001
