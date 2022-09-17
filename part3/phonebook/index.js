@@ -4,7 +4,7 @@ const morgan = require('morgan')
 const cors = require('cors')
 
 app.use(express.json())
-//app.use(cors)
+app.use(cors())
 
 const baseUrl = "/api/persons"
 
