@@ -7,10 +7,12 @@
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-    "build:ui": "rm -rf build && cd ../phonebook-frontend/ && npm run build && cp -r build ../phonebook",
-    "deploy": "fly deploy",
+    "build:ui": "rm -rf build && cd ../phonebook-fe/ && npm run build && cp -r build ../phonebook && cd ../phonebook",
+    "deploy": "git add . && git commit -m 'redeploy' && git push -u heroku master",
     "deploy:full": "npm run build:ui && npm run deploy",
-    "logs:prod": "fly logs"
+    "logs:prod": "fly logs",
+    "lint": "eslint .",
+    "build:run": "npm run build:ui && npm start"
   },
   "author": "",
   "license": "ISC",
@@ -22,6 +24,7 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "eslint": "^8.23.1",
     "nodemon": "^2.0.19"
   }
 }

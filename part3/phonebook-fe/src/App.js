@@ -59,6 +59,11 @@ const App = () => {
       setPersons(persons.concat(savedPerson))
       notify(`Added ${savedPerson.name}`)
     })
+    .catch(error => {
+      notify(
+        `Person validation failed: ${error.response.data.error}`, 'alert'
+      )
+    })
   }
 
   const deletePerson = (id) => { 
