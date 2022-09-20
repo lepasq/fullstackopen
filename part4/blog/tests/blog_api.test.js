@@ -124,6 +124,33 @@ test('blog without title or url is not added', async () => {
 })
 
 
+test('blog can be deleted by identifier', async () => {
+	const resp = await api.get('/api/blogs');
+	const blog = resp.body[0]
+
+	await api
+			.delete(`/api/blogs/${blog.id}`)
+			.expect(204)
+
+	const response = await api.get('/api/blogs')
+	expect(response.body).toHaveLength(initialBlogs.length - 1)
+	expect(response.body.find(x => x.title === blog.title)).toBeUndefined()
+})
+
+
+test('blog can be updated by identifier', async () => {
+	const resp = await api.get('/api/blogs');
+	const blog = resp.body[0]
+
+	const response = await api .put(`/api/blogs/${blog.id}`)
+			.send({ 'likes': blog.likes + 1 })
+			.expect(200)
+
+	expect(response.body.likes).toEqual(blog.likes + 1);
+})
+
+
+
 afterAll(() => {
   mongoose.connection.close()
 })
