@@ -1,12 +1,8 @@
 require('dotenv').config()
 const express = require('express')
 const app = express()
-const path = require('path')
 app.use(express.json())
-//app.use(express.static('build'))
-app.use(express.static(__dirname + '/build'))
-
-console.log(__dirname + '/build')
+app.use(express.static('build'))
 
 const morgan = require('morgan')
 const cors = require('cors')
@@ -124,14 +120,10 @@ app.put(`${baseUrl}/:id`, (request, response, next) => {
     .catch((error) => next(error))
 })
 
-//app.get('*', (req, res) => {
-//res.sendFile(path.join(__dirname, './build/index.html'))
-//})
-
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
-// handler of requests with unknown endpoint
+
 app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
