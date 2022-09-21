@@ -19,7 +19,12 @@ blogRouter.post('/', async (request, response) => {
 	const user = await User.findById(decodedToken.id)
 
 
-  const blog = new Blog(request.body)
+  const blog = new Blog({
+		...request.body,
+		likes: request.body.likes,
+		user: user._id,
+	})
+
   const result = await blog.save()
 	if(result) {
 		user.blogs = user.blogs.concat(result._id)  
@@ -31,8 +36,16 @@ blogRouter.post('/', async (request, response) => {
 })
 
 blogRouter.delete('/:id', async (request, response) => {
-  await Blog.findByIdAndRemove(request.params.id)
-	response.status(204).end()
+	const decodedToken = jwt.verify(request.token, process.env.SECRET)  
+	const user = await User.findById(decodedToken.id)
+	const blog = await Blog.findById(request.params.id).populate('user')
+
+	if ( blog.user.username.toString() === user.username.toString() ) {
+		await blog.remove()
+		return response.status(204).end()
+	} else {
+		return response.status(401).end()
+	}
 })
 
 blogRouter.put('/:id', async (request, response) => {
