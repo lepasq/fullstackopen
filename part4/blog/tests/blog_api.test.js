@@ -2,43 +2,27 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
+const helper = require('./test_helper')
 
 const api = supertest(app)
 
-
 beforeEach(async () => {
 	await Blog.deleteMany({})
-	let blogObject = new Blog(initialBlogs[0])
+	let blogObject = new Blog(helper.initialBlogs[0])
 	await blogObject.save()
-	blogObject = new Blog(initialBlogs[1])
+	blogObject = new Blog(helper.initialBlogs[1])
 	await blogObject.save()
 
-	// for(let blog of initialBlogs) {
+	// for(let blog of helper.initialBlogs) {
 	//   let blogObj = new Blog(blog)
 	//   await blogObj.save()
 	// }
 })
 
 
-const initialBlogs = [
-	{
-		'title': "Blog post",
-		'author': "Leonardo Pasquarelli",
-		'url': "http://google.com",
-		'likes': 3
-	},
-	{
-		'title': "Second post post",
-		'author': "Tuomas Pierra",
-		'url': "http://youtube.com",
-		'likes': 5
-	}
-]
-
-
 test('blogs are returned as json', async () => {
 	const response = await api.get('/api/blogs');
-	expect(response.body).toHaveLength(initialBlogs.length);
+	expect(response.body).toHaveLength(helper.initialBlogs.length);
 }, 100000)
 
 
@@ -70,7 +54,7 @@ test('a valid blog can be added', async () => {
 
   const url = response.body.map(r => r.url)
 
-  expect(response.body).toHaveLength(initialBlogs.length + 1)
+  expect(response.body).toHaveLength(helper.initialBlogs.length + 1)
 	expect(url).toContainEqual(
 		'http://reddit.com'
 	)
@@ -94,7 +78,7 @@ test('a blog without likes defaults to 0', async () => {
 
   const blog = response.body.find(x => x.title === 'Hello there')
 
-  expect(response.body).toHaveLength(initialBlogs.length + 1)
+  expect(response.body).toHaveLength(helper.initialBlogs.length + 1)
 	expect(blog).toBeDefined()
 	expect(blog.likes).toEqual(0)
 })
@@ -119,7 +103,7 @@ test('blog without title or url is not added', async () => {
 			.expect(400)
 
 		const response = await api.get('/api/blogs')
-		expect(response.body).toHaveLength(initialBlogs.length)
+		expect(response.body).toHaveLength(helper.initialBlogs.length)
 	}
 })
 
@@ -133,7 +117,7 @@ test('blog can be deleted by identifier', async () => {
 			.expect(204)
 
 	const response = await api.get('/api/blogs')
-	expect(response.body).toHaveLength(initialBlogs.length - 1)
+	expect(response.body).toHaveLength(helper.initialBlogs.length - 1)
 	expect(response.body.find(x => x.title === blog.title)).toBeUndefined()
 })
 
