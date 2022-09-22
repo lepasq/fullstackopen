@@ -2,6 +2,7 @@ const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
+const { userExtractor } = require('../utils/middleware')
 
 
 blogRouter.get('/', async (request, response) => {
@@ -11,13 +12,8 @@ blogRouter.get('/', async (request, response) => {
 	response.json(blogs)
 })
 
-blogRouter.post('/', async (request, response) => {
-	const decodedToken = jwt.verify(request.token, process.env.SECRET)  
-	if (!decodedToken.id) {    
-		return response.status(401).json({ error: 'token missing or invalid' })  
-	}  
-	const user = await User.findById(decodedToken.id)
-
+blogRouter.post('/', userExtractor, async (request, response) => {
+	const user = request.user;
 
   const blog = new Blog({
 		...request.body,
@@ -35,9 +31,8 @@ blogRouter.post('/', async (request, response) => {
 	}
 })
 
-blogRouter.delete('/:id', async (request, response) => {
-	const decodedToken = jwt.verify(request.token, process.env.SECRET)  
-	const user = await User.findById(decodedToken.id)
+blogRouter.delete('/:id', userExtractor, async (request, response) => {
+	const user = request.user;
 	const blog = await Blog.findById(request.params.id).populate('user')
 
 	if ( blog.user.username.toString() === user.username.toString() ) {

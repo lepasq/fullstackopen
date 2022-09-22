@@ -2,21 +2,28 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const helper = require('./test_helper')
 
 const api = supertest(app)
 
+
+const getToken = async () => {
+  const request = await api.post("/api/login").send({
+    username: helper.testUser().username,
+    password: helper.testUser().password
+  });
+  return `Bearer ${request.body.token}`;
+}
+
 beforeEach(async () => {
 	await Blog.deleteMany({})
-	let blogObject = new Blog(helper.initialBlogs[0])
-	await blogObject.save()
-	blogObject = new Blog(helper.initialBlogs[1])
-	await blogObject.save()
+	await User.deleteMany({});
+	const user = await api.post('/api/users').send(helper.testUser())
 
-	// for(let blog of helper.initialBlogs) {
-	//   let blogObj = new Blog(blog)
-	//   await blogObj.save()
-	// }
+	await Blog.insertMany(
+		helper.initialBlogs.map(blog => ({...blog, user: user.body.id }))
+	)
 })
 
 
@@ -35,8 +42,8 @@ test('blogs contain unique id', async () => {
 }, 300000)
 
 
-
 test('a valid blog can be added', async () => {
+	const token = await getToken()
   const newBlog = {
 		'title': "Another post",
 		'author': "Leonardo Pasquarelli",
@@ -47,6 +54,7 @@ test('a valid blog can be added', async () => {
   await api
     .post('/api/blogs')
     .send(newBlog)
+		.set('Authorization', token)
     .expect(201)
     .expect('Content-Type', /application\/json/)
 
@@ -62,6 +70,8 @@ test('a valid blog can be added', async () => {
 
 
 test('a blog without likes defaults to 0', async () => {
+	const token = await getToken()
+
   const newBlog = {
 		'title': "Hello there",
 		'author': "Leonardo Pasquarelli",
@@ -71,6 +81,7 @@ test('a blog without likes defaults to 0', async () => {
   await api
     .post('/api/blogs')
     .send(newBlog)
+			.set('Authorization', token)
     .expect(201)
     .expect('Content-Type', /application\/json/)
 
@@ -85,10 +96,12 @@ test('a blog without likes defaults to 0', async () => {
 
 
 test('blog without title or url is not added', async () => {
+	const token = await getToken()
+
 	const newBlogs = [{
 		'author': "Leonardo Pasquarelli",
 		'url': "http://facebook.com",
-		'likes': 0
+		'likes': 0,
 		},
 		{
 			'title': "Book of faces",
@@ -100,6 +113,7 @@ test('blog without title or url is not added', async () => {
 		await api
 			.post('/api/blogs')
 			.send(newBlog)
+			.set('Authorization', token)
 			.expect(400)
 
 		const response = await api.get('/api/blogs')
@@ -109,11 +123,14 @@ test('blog without title or url is not added', async () => {
 
 
 test('blog can be deleted by identifier', async () => {
+	const token = await getToken()
+
 	const resp = await api.get('/api/blogs');
 	const blog = resp.body[0]
 
 	await api
 			.delete(`/api/blogs/${blog.id}`)
+			.set('Authorization', token)
 			.expect(204)
 
 	const response = await api.get('/api/blogs')
@@ -123,16 +140,42 @@ test('blog can be deleted by identifier', async () => {
 
 
 test('blog can be updated by identifier', async () => {
+	const token = await getToken()
+
 	const resp = await api.get('/api/blogs');
 	const blog = resp.body[0]
 
 	const response = await api .put(`/api/blogs/${blog.id}`)
 			.send({ 'likes': blog.likes + 1 })
+			.set('Authorization', token)
 			.expect(200)
 
 	expect(response.body.likes).toEqual(blog.likes + 1);
 })
 
+
+test('blog cannot be added when not logged in', async () => {
+	const resp = await api.get('/api/blogs');
+	const blog = resp.body[0]
+
+	await api
+			.delete(`/api/blogs/${blog.id}`)
+			.expect(401)
+})
+
+
+test('blog cannot be deleted by user other than the author', async () => {
+	const token = await api.get('/api/login').send(helper.testUser())
+	const resp = await api.get('/api/blogs');
+	const blog = resp.body[0]
+
+	const response = await api .put(`/api/blogs/${blog.id}`)
+			.send({ 'likes': blog.likes + 1 })
+			.set('Authorization', `Token ${token.body.token}`)
+			.expect(200)
+
+	expect(response.body.likes).toEqual(blog.likes + 1);
+})
 
 
 afterAll(() => {
