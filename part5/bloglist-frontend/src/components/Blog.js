@@ -1,8 +1,9 @@
+import PropTypes from 'prop-types'
 import Togglable from './Togglable'
 
 import { useRef, useEffect } from 'react'
 
-const Blog = ({blog, updateLike, removeBlog}) => {
+const Blog = ({ blog, updateLike, removeBlog }) => {
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -11,31 +12,37 @@ const Blog = ({blog, updateLike, removeBlog}) => {
     marginBottom: 5
   }
 
-	useEffect(()=> {
-		console.log(blog.likes, "likes changed")
-	}, [blog.likes])
+  useEffect(() => {
+    console.log(blog.likes, 'likes changed')
+  }, [blog.likes])
 
 
-	const blogRef = useRef()
+  const blogRef = useRef()
 
-	return (
-		<div style={blogStyle}>
-			{blog.title} {blog.author}
+  return (
+    <div style={blogStyle}>
+      {blog.title} {blog.author}
 
-			<Togglable buttonLabel='show details' ref={blogRef}>
-				<p>
+      <Togglable buttonLabel='show details' ref={blogRef}>
+        <p>
 					likes: {blog.likes} <button onClick={() => updateLike(blog)}>like</button>
-				</p>
-				<p>
-					{blog.url}
-				</p>
-				<p>
-					{blog.user.username}
-				</p>
-		</Togglable>
-			<button onClick={() => removeBlog(blog)}>remove</button>
-		</div>  
-	)
+        </p>
+        <p>
+          {blog.url}
+        </p>
+        <p>
+          {blog.user.username}
+        </p>
+      </Togglable>
+      <button onClick={() => removeBlog(blog)}>remove</button>
+    </div>
+  )
+}
+
+Blog.propTypes = {
+  blog: PropTypes.object.isRequired,
+  updateLike: PropTypes.func.isRequired,
+  removeBlog: PropTypes.func.isRequired
 }
 
 export default Blog
