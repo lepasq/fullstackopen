@@ -41,7 +41,7 @@ const BlogForm = ({ setIsSuccess, setNotification, setBlogs, blogs }) => {
 
 
   return (
-    <form onSubmit={addBlog}>
+    <form className="blogForm" onSubmit={addBlog}>
 					title:
       <input
         type="text"

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import Togglable from './Togglable'
 
-import { useRef, useEffect } from 'react'
+import { useRef } from 'react'
 
 const Blog = ({ blog, updateLike, removeBlog }) => {
   const blogStyle = {
@@ -12,25 +12,21 @@ const Blog = ({ blog, updateLike, removeBlog }) => {
     marginBottom: 5
   }
 
-  useEffect(() => {
-    console.log(blog.likes, 'likes changed')
-  }, [blog.likes])
-
-
   const blogRef = useRef()
 
   return (
     <div style={blogStyle}>
-      {blog.title} {blog.author}
+      <p>{blog.title}</p>
+      <p>{blog.author}</p>
 
       <Togglable buttonLabel='show details' ref={blogRef}>
         <p>
 					likes: {blog.likes} <button onClick={() => updateLike(blog)}>like</button>
         </p>
-        <p>
+        <p className="url">
           {blog.url}
         </p>
-        <p>
+        <p className="username">
           {blog.user.username}
         </p>
       </Togglable>
