@@ -1,4 +1,6 @@
-export const getId = () => (100000 * Math.random()).toFixed(0)
+import anecdoteService from '../services/anecdotes'
+
+const getId = () => (100000 * Math.random()).toFixed(0)
 
 const sortAnecdotes = (anecdotes) => anecdotes.sort((a, b) => (a.votes < b.votes) ? 1 : -1)
 
@@ -17,6 +19,8 @@ const reducer = (state = initialState, action) => {
 				a.id !== id ? a : changedAnecdote 
 			))
 		case 'CREATE':
+			return sortAnecdotes(state.concat(action.data))
+		case 'APPEND':
 			return sortAnecdotes(state.concat(action.data))
 		case 'SET':
 			return sortAnecdotes(action.data)
@@ -44,6 +48,13 @@ export const create = (name, id) => {
   }
 }
 
+export const append = (anecdote) => {
+	return {
+		type: 'APPEND',
+		data: anecdote
+	}
+}
+
 export const set = (anecdotes) => {
 	return {
 		type: 'SET',
@@ -51,5 +62,27 @@ export const set = (anecdotes) => {
 	}
 }
 
+export const initializeAnecdotes = () => {  
+	return async dispatch => {    
+		const anecdotes = await anecdoteService.getAll()    
+		dispatch(set(anecdotes))  
+	}
+}
+
+export const createAnecdote = (content) => {
+	return async dispatch => {    
+		const id = getId()
+		const anecdote = await anecdoteService.createNew(content, id)    
+		dispatch(append(anecdote))  
+	}
+}
+
+export const voteAnecdote = (anecdote) => {
+	return async dispatch => {
+		const newAnecdote = {...anecdote, votes: anecdote.votes + 1}
+		await anecdoteService.vote(newAnecdote)
+		dispatch(vote(newAnecdote.id))
+	}
+}
 
 export default reducer
