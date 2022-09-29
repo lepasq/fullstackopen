@@ -1,26 +1,22 @@
+import { connect } from 'react-redux'
 import { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { initializeAnecdotes, voteAnecdote } from '../reducers/anecdoteReducer'
 import { notifyAnecdote } from '../reducers/notificationReducer'
 
 const AnecdoteList = (props) => {
-  const dispatch = useDispatch()
-  const anecdotes = useSelector(({ anecdotes, filter}) => 
-		anecdotes.filter(a => a.content.toLowerCase().includes(filter.toLowerCase()))
-	)
-
 	useEffect(() => {    
-			dispatch(initializeAnecdotes())
-	}, [dispatch])
+			props.initializeAnecdotes()
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
 
   const vote = (anecdote) => {
-		dispatch(voteAnecdote(anecdote))
-		dispatch(notifyAnecdote(`you voted '${anecdote.content}'`, 5))
+		props.voteAnecdote(anecdote)
+		props.notifyAnecdote(`you voted '${anecdote.content}'`, 5)
   }
 
   return(
 		<>
-			{anecdotes.map(anecdote =>
+			{props.anecdotes.map(anecdote =>
 				<div key={anecdote.id}>
 					<div>
 						{anecdote.content}
@@ -35,4 +31,20 @@ const AnecdoteList = (props) => {
   )
 }
 
-export default AnecdoteList
+const mapStateToProps = (state) => {
+	const anecdotes = state.anecdotes.filter(a => a.content.toLowerCase().includes(state.filter.toLowerCase()))
+  return {
+		anecdotes
+  }
+}
+const mapDispatchToProps = {
+	initializeAnecdotes,
+	voteAnecdote,
+	notifyAnecdote,
+}
+
+const ConnectedAnecdoteList = connect(
+	mapStateToProps, 
+	mapDispatchToProps
+)(AnecdoteList)
+export default ConnectedAnecdoteList

@@ -17,14 +17,17 @@ const notificationSlice = createSlice({
 	}
 })
 
+let timeoutID = undefined
 
 export const notifyAnecdote = (message, seconds) => {
 	return async dispatch => {
 		dispatch(notify(message))
-		setTimeout(() => {
-				dispatch(clear())
+		if (typeof timeoutID === 'number') {
+			clearTimeout(timeoutID);
+		}
+		timeoutID = setTimeout((message) => {
+			dispatch(clear())
 		}, seconds * 1000);
-
 	}
 }
 
