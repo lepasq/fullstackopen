@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { vote } from '../reducers/anecdoteReducer'
+import { vote, set } from '../reducers/anecdoteReducer'
 import { notify, clear } from '../reducers/notificationReducer'
+import anecdoteService from '../services/anecdotes' 
 
 const AnecdoteList = (props) => {
   const dispatch = useDispatch()
@@ -8,7 +10,11 @@ const AnecdoteList = (props) => {
 		anecdotes.filter(a => a.content.toLowerCase().includes(filter.toLowerCase()))
 	)
 
-	console.log(anecdotes)
+	useEffect(() => {    
+		anecdoteService      
+			.getAll().then(notes => 
+				dispatch(set(notes)))  
+	}, [dispatch])
 
   const voteAnecdote = (anecdote) => {
 		dispatch(vote(anecdote.id))
