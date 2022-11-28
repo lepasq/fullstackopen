@@ -6,6 +6,8 @@ import NewBlogForm from './components/NewBlogForm'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 
+import { Table, Button } from 'react-bootstrap'
+
 import blogService from './services/blogs'
 import loginService from './services/login'
 import userService from './services/user'
@@ -116,14 +118,14 @@ const App = () => {
   }
 
   return (
-    <div>
+    <div className="container">
       <h2>blogs</h2>
 
       <Notification notification={notification} />
 
       <div>
         {user.name} logged in
-        <button onClick={logout}>logout</button>
+        <Button variant="danger" onClick={logout}>logout</Button>
       </div>
 
       <Togglable buttonLabel="new note" ref={blogFormRef}>
@@ -131,15 +133,23 @@ const App = () => {
       </Togglable>
 
       <div id="blogs">
-        {blogs.map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            likeBlog={likeBlog}
-            removeBlog={removeBlog}
-            user={user}
-          />
-        ))}
+        <Table striped bordered hover>
+          <tbody>
+            {blogs.map((blog) => (
+              <tr key={blog.id}>
+                <td key={blog.id}>
+                  <Blog
+                    key={blog.id}
+                    blog={blog}
+                    likeBlog={likeBlog}
+                    removeBlog={removeBlog}
+                    user={user}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       </div>
     </div>
   )

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import PropTypes from 'prop-types'
 
+import { Button } from 'react-bootstrap'
+
 const BlogDetails = ({ blog, visible, likeBlog, removeBlog, own }) => {
   if (!visible) return null
 
@@ -13,10 +15,10 @@ const BlogDetails = ({ blog, visible, likeBlog, removeBlog, own }) => {
       </div>
       <div>
         {blog.likes} likes{' '}
-        <button onClick={() => likeBlog(blog.id)}>like</button>
+        <Button variant="success" onClick={() => likeBlog(blog.id)}>like</Button>
       </div>
       {addedBy}
-      {own && <button onClick={() => removeBlog(blog.id)}>remove</button>}
+      {own && <Button variant="danger" onClick={() => removeBlog(blog.id)}>remove</Button>}
     </div>
   )
 }
@@ -34,9 +36,9 @@ const Blog = ({ blog, likeBlog, removeBlog, user }) => {
   return (
     <div style={style} className="blog">
       {blog.title} {blog.author}
-      <button onClick={() => setVisible(!visible)}>
+      <Button variant="secondary" onClick={() => setVisible(!visible)}>
         {visible ? 'hide' : 'view'}
-      </button>
+      </Button>
       <BlogDetails
         blog={blog}
         visible={visible}
