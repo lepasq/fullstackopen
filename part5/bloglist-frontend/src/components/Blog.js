@@ -15,7 +15,7 @@ const Blog = ({ blog, updateLike, removeBlog }) => {
   const blogRef = useRef()
 
   return (
-    <div style={blogStyle}>
+    <div className="blog" style={blogStyle}>
       <p>{blog.title}</p>
       <p>{blog.author}</p>
 

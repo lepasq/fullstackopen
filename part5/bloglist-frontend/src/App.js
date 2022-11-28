@@ -70,7 +70,8 @@ const App = () => {
   )
 
   const updateLike = (blog) => {
-    blogService.update(blog.id, { title: blog.title, author: blog.author, url: blog.url, likes: blog.likes + 1 }).then(() => {
+    const likes = blog.likes ? blog.likes + 1 : 0
+    blogService.update(blog.id, { title: blog.title, author: blog.author, url: blog.url, likes: likes }).then(() => {
       blog.likes += 1
       setBlogs(blogs.filter(x => x.id !== blog.id).concat(blog).sort((a, b) => (b.likes - a.likes)))
     })

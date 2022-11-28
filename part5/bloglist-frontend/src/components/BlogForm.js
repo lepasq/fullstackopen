@@ -7,17 +7,18 @@ const BlogForm = ({ setIsSuccess, setNotification, setBlogs, blogs }) => {
   const [blogAuthor, setBlogAuthor] = useState('')
   const [blogUrl, setBlogUrl] = useState('')
 
-  const addBlog = event => {
+  const addBlog = (event) => {
     event.preventDefault()
     const blogObject = {
       title: blogTitle,
       author: blogAuthor,
-      url: blogUrl
+      url: blogUrl,
+      likes: 0,
     }
 
     blogService
       .create(blogObject)
-      .then(returnedBlog => {
+      .then((returnedBlog) => {
         setBlogs(blogs.concat(returnedBlog))
         setIsSuccess(true)
         setNotification(`a new blog ${blogTitle} by ${blogAuthor} was added`)
@@ -29,7 +30,8 @@ const BlogForm = ({ setIsSuccess, setNotification, setBlogs, blogs }) => {
           setNotification(null)
           setIsSuccess(false)
         }, 5000)
-      }).catch(() => {
+      })
+      .catch(() => {
         setIsSuccess(false)
         setNotification('missing fields')
         setTimeout(() => {
@@ -39,42 +41,45 @@ const BlogForm = ({ setIsSuccess, setNotification, setBlogs, blogs }) => {
       })
   }
 
-
   return (
     <form className="blogForm" onSubmit={addBlog}>
-					title:
+      title:
       <input
         type="text"
         value={blogTitle}
         name="Title"
+        className="title"
         onChange={({ target }) => setBlogTitle(target.value)}
       />
-      <br/>author:
+      <br />
+      author:
       <input
         type="text"
         value={blogAuthor}
         name="Author"
+        className="author"
         onChange={({ target }) => setBlogAuthor(target.value)}
       />
-      <br/>url:
+      <br />
+      url:
       <input
         type="text"
         value={blogUrl}
         name="Url"
+        className="url"
         onChange={({ target }) => setBlogUrl(target.value)}
       />
-      <br/>
+      <br />
       <button type="submit">create</button>
     </form>
   )
 }
 
-
 BlogForm.propTypes = {
   blogs: PropTypes.arrayOf(Object).isRequired,
   setIsSuccess: PropTypes.func.isRequired,
   setNotification: PropTypes.func.isRequired,
-  setBlogs: PropTypes.func.isRequired
+  setBlogs: PropTypes.func.isRequired,
 }
 
 export default BlogForm
