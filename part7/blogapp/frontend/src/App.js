@@ -4,11 +4,7 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  //Link,
-  //Navigate,
-  //useParams,
-  //useNavigate,
-  //useMatch
+  Link,
 } from 'react-router-dom'
 
 import Blog from './components/Blog'
@@ -31,6 +27,7 @@ const App = () => {
   const [user, setUser] = useState(null)
   const [users, setUsers] = useState([])
   const [notification, setNotification] = useState(null)
+
   const blogFormRef = useRef()
   const byLikes = (b1, b2) => (b2.likes > b1.likes ? 1 : -1)
 
@@ -113,17 +110,16 @@ const App = () => {
     )
   }
 
+  const padding = {
+    padding: 5
+  }
+
   const main = () => {
     return (
       <div>
         <h2>blogs</h2>
 
         <Notification notification={notification} />
-
-        <div>
-          {user.name} logged in
-          <Button variant="danger" onClick={logout}>logout</Button>
-        </div>
 
         <Togglable buttonLabel="create blog" ref={blogFormRef}>
           <NewBlogForm onCreate={createBlog} />
@@ -148,8 +144,17 @@ const App = () => {
       </div>
     )
   }
+
   return (
     <div className="container">
+      <div>
+        <Link style={padding} to="/">blogs</Link>
+        <Link style={padding} to="/users">users</Link>
+
+        {user.name} logged in
+        <Button variant="danger" onClick={logout}>logout</Button>
+
+      </div>
       {main()}
       <Routes>
         <Route path="/" element={<></>} />
