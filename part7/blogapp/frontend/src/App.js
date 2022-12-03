@@ -1,6 +1,20 @@
 import { useState, useEffect, useRef } from 'react'
 
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  //Link,
+  //Navigate,
+  //useParams,
+  //useNavigate,
+  //useMatch
+} from 'react-router-dom'
+
 import Blog from './components/Blog'
+import BlogPage from './components/BlogPage'
+import Users from './components/Users'
+import User from './components/User'
 import LoginForm from './components/LoginForm'
 import NewBlogForm from './components/NewBlogForm'
 import Notification from './components/Notification'
@@ -15,15 +29,14 @@ import userService from './services/user'
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
+  const [users, setUsers] = useState([])
   const [notification, setNotification] = useState(null)
   const blogFormRef = useRef()
   const byLikes = (b1, b2) => (b2.likes > b1.likes ? 1 : -1)
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs.sort(byLikes)))
-  }, [])
-
-  useEffect(() => {
+    userService.getAll().then((users) => setUsers(users))
     const userFromStorage = userService.getUser()
     if (userFromStorage) {
       setUser(userFromStorage)
@@ -67,23 +80,6 @@ const App = () => {
       })
   }
 
-  const removeBlog = (id) => {
-    const toRemove = blogs.find((b) => b.id === id)
-
-    const ok = window.confirm(
-      `remove '${toRemove.title}' by ${toRemove.author}?`
-    )
-
-    if (!ok) {
-      return
-    }
-
-    blogService.remove(id).then(() => {
-      const updatedBlogs = blogs.filter((b) => b.id !== id).sort(byLikes)
-      setBlogs(updatedBlogs)
-    })
-  }
-
   const likeBlog = async (id) => {
     const toLike = blogs.find((b) => b.id === id)
     const liked = {
@@ -117,42 +113,57 @@ const App = () => {
     )
   }
 
+  const main = () => {
+    return (
+      <div>
+        <h2>blogs</h2>
+
+        <Notification notification={notification} />
+
+        <div>
+          {user.name} logged in
+          <Button variant="danger" onClick={logout}>logout</Button>
+        </div>
+
+        <Togglable buttonLabel="create blog" ref={blogFormRef}>
+          <NewBlogForm onCreate={createBlog} />
+        </Togglable>
+
+        <div id="blogs">
+          <Table striped bordered hover>
+            <tbody>
+              {blogs.map((blog) => (
+                <tr key={blog.id}>
+                  <td key={blog.id}>
+                    <Blog
+                      key={blog.id}
+                      blog={blog}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="container">
-      <h2>blogs</h2>
-
-      <Notification notification={notification} />
-
-      <div>
-        {user.name} logged in
-        <Button variant="danger" onClick={logout}>logout</Button>
-      </div>
-
-      <Togglable buttonLabel="new note" ref={blogFormRef}>
-        <NewBlogForm onCreate={createBlog} />
-      </Togglable>
-
-      <div id="blogs">
-        <Table striped bordered hover>
-          <tbody>
-            {blogs.map((blog) => (
-              <tr key={blog.id}>
-                <td key={blog.id}>
-                  <Blog
-                    key={blog.id}
-                    blog={blog}
-                    likeBlog={likeBlog}
-                    removeBlog={removeBlog}
-                    user={user}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </div>
+      {main()}
+      <Routes>
+        <Route path="/" element={<></>} />
+        <Route path="/users" element={<Users users={users}/> } />
+        <Route path="/users/:userId" element={<User users={users}/>} />
+        <Route path="/blogs/:blogId" element={<BlogPage likeBlog={likeBlog} blogs={blogs}/>} />
+      </Routes>
     </div>
   )
 }
 
-export default App
+
+const RouterApp = () => (
+  <Router><App/></Router>
+)
+
+export default RouterApp

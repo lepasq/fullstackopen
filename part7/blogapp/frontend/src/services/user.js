@@ -1,5 +1,7 @@
-let token = null
+import axios from 'axios'
 
+let token = null
+const baseUrl = '/api/users'
 const STORAGE_KEY = 'loggedBlogAppUser'
 
 const setUser = (user) => {
@@ -25,9 +27,15 @@ const clearUser = () => {
 
 const getToken = () => token
 
+const getAll = () => {
+  const request = axios.get(baseUrl)
+  return request.then((response) => response.data)
+}
+
 export default {
   setUser,
   getUser,
+  getAll,
   clearUser,
   getToken,
 }

@@ -10,6 +10,11 @@ router.get('/', async (request, response) => {
   response.json(users)
 })
 
+router.get('/:userId', async (request, response) => {
+  const foundUser = await User.findById(request.params.userId)
+	response.json(foundUser)
+})
+
 router.post('/', async (request, response) => {
   const { username, name, password } = request.body
 
